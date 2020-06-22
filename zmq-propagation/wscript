@@ -1,0 +1,141 @@
+import os
+from waflib import Options, Errors
+from subprocess import check_output
+from packaging import version
+import re
+
+def options(opt):
+    opt.add_option('--with-zmq', help=('Installation prefix for libzmq'), dest='with_zmq', default='/usr/lib')
+    opt.add_option('--with-protobuf', help=('Installation prefix for libprotobuf'), dest='with_protobuf', default='/usr/lib')
+    opt.add_option('--with-protoc', help=('Installation prefix for binary protoc'), dest='with_protoc', default='/usr/bin/protoc')
+
+def generate_proto(context, source):
+    source = os.path.abspath(context.path.abspath() + '/' + source)
+    if not os.path.exists(source):
+        context.fatal('File %s does not exist' % source)
+
+    output = context.path.abspath() + '/model/' + os.path.basename(source).replace('.proto', '.pb.cc')
+    if (not os.path.exists(output) or (os.path.getmtime(source) > os.path.getmtime(output))):
+        protoc_command = [context.env['WITH_PROTOC'], '--proto_path', os.path.dirname(source), '--cpp_out', context.path.abspath() + '/model', source]
+        check_output(protoc_command).decode("utf-8")
+        print("Generating protobuf messages")
+    else:
+        print("Skipping protobuf messages generation")
+
+def configure(conf):
+    # ZeroMQ
+    if Options.options.with_zmq:
+        if os.path.isdir(Options.options.with_zmq):
+            conf.msg("Checking for libzmq.so location", ("%s (given)" % Options.options.with_zmq))
+            conf.env['WITH_ZMQ'] = os.path.abspath(Options.options.with_zmq)
+
+    zmq_test_code = '''
+        #include <zmq.hpp>
+
+        int main()
+        {
+            zmq::context_t context(1);
+            zmq::socket_t socket(context, ZMQ_PUSH);
+            socket.connect("inproc://test");
+        }
+    '''
+
+    conf.env.append_value('NS3_MODULE_PATH', os.path.abspath(os.path.join(conf.env['WITH_ZMQ'], 'build', 'default')))
+    conf.env.append_value('NS3_MODULE_PATH', os.path.abspath(os.path.join(conf.env['WITH_ZMQ'], 'lib')))
+    conf.env.append_value('NS3_MODULE_PATH', os.path.abspath(os.path.join(conf.env['WITH_ZMQ'], 'lib64')))
+    conf.env['INCLUDES_ZMQ'] = [os.path.abspath(os.path.join(conf.env['WITH_ZMQ'], 'include'))]
+    conf.env['LIBPATH_ZMQ'] = [
+            os.path.abspath(os.path.join(conf.env['WITH_ZMQ'], 'build', 'default')),
+            os.path.abspath(os.path.join(conf.env['WITH_ZMQ'], 'lib')),
+            os.path.abspath(os.path.join(conf.env['WITH_ZMQ'], 'lib64'))
+        ]
+
+    conf.env['DEFINES_ZMQ'] = ['HAVE_ZMQ']
+    conf.env['ZMQ'] = conf.check(fragment=zmq_test_code, lib='zmq', libpath=conf.env['LIBPATH_ZMQ'], use='ZMQ')
+    conf.env.append_value('LIB_ZMQ', 'zmq')
+    conf.report_optional_feature("zmq", "ZMQ Integration", conf.env['ZMQ'], "zmq library not found")
+
+    # Protobuf
+    if Options.options.with_protobuf:
+        if os.path.isdir(Options.options.with_protobuf):
+            conf.msg("Checking for libprotobuf.so location", ("%s (given)" % Options.options.with_protobuf))
+            conf.env['WITH_PROTOBUF'] = os.path.abspath(Options.options.with_protobuf)
+
+    conf.env.append_value('NS3_MODULE_PATH', os.path.abspath(os.path.join(conf.env['WITH_PROTOBUF'], 'build', 'default')))
+    conf.env.append_value('NS3_MODULE_PATH', os.path.abspath(os.path.join(conf.env['WITH_PROTOBUF'], 'lib')))
+    conf.env.append_value('NS3_MODULE_PATH', os.path.abspath(os.path.join(conf.env['WITH_PROTOBUF'], 'lib64')))
+    conf.env['INCLUDES_PROTOBUF'] = [os.path.abspath(os.path.join(conf.env['WITH_PROTOBUF'], 'include'))]
+    conf.env['LIBPATH_PROTOBUF'] = [
+            os.path.abspath(os.path.join(conf.env['WITH_PROTOBUF'], 'build', 'default')),
+            os.path.abspath(os.path.join(conf.env['WITH_PROTOBUF'], 'lib')),
+            os.path.abspath(os.path.join(conf.env['WITH_PROTOBUF'], 'lib64'))
+        ]
+    conf.env['DEFINES_PROTOBUF'] = ['HAVE_PROTOBUF']
+    conf.env['PROTOBUF'] = conf.check(lib='protobuf', libpath=conf.env['LIBPATH_PROTOBUF'], use='PROTOBUF')
+    conf.env.append_value('LIB_PROTOBUFQ', 'protobuf')
+    conf.report_optional_feature("protobuf", "PROTOBUF Integration", conf.env['PROTOBUF'], "protobuf library not found")
+
+    # Protoc
+    if Options.options.with_protoc:
+        if os.path.isfile(Options.options.with_protoc):
+            conf.msg("Checking with protoc location", ("%s (given)" % Options.options.with_protoc))
+            conf.env['WITH_PROTOC'] = os.path.abspath(Options.options.with_protoc)
+
+    if not os.path.isfile(conf.env['WITH_PROTOC']):
+        conf.fatal('Protoc binary %s does not exist' % conf.env['WITH_PROTOC'])
+
+    protoc_min_version = "3.0.0"
+
+    try:
+        output = check_output([conf.env['WITH_PROTOC'], '--version']).decode("utf-8")
+        if match := re.search("[0-9.]+", output, re.IGNORECASE):
+            protoc_version = match.group(0)
+            if version.parse(protoc_version) > version.parse(protoc_min_version):
+                conf.msg("Protoc version check", ("%s > %s" % (protoc_version, protoc_min_version)))
+                conf.env['PROTOC'] = True
+            else:
+                conf.fatal(("Protoc version check %s < %s" % (protoc_version, protoc_min_version)))
+    except Errors.ConfigurationError as e:
+        raise e
+    except Exception as e:
+        conf.fatal('Could not determine the protoc version %r' % conf.env['WITH_PROTOC'])
+        conf.fatal('%s' % e)
+
+def build(bld):
+    # We build protobuf messages using protoc
+    generate_proto(bld, 'zmq-messages/messages.proto')
+
+    module = bld.create_ns3_module('zmq-propagation', ['core', 'network', 'mobility', 'propagation'])
+
+    module.source = [
+        'model/zmq-propagation-loss-model.cc',
+        'model/zmq-propagation-delay-model.cc',
+        'model/zmq-propagation-messages.pb.cc' # Protobuf messages
+        ]
+
+    module_test = bld.create_ns3_module_test_library('zmq-propagation')
+    module_test.source = [
+        'test/zmq-propagation-test-suite.cc',
+        ]
+    # Tests encapsulating example programs should be listed here
+    if (bld.env['ENABLE_EXAMPLES']):
+        module_test.source.extend([
+        #    'test/zmq-propagation-examples-test-suite.cc',
+             ])
+
+    headers = bld(features='ns3header')
+    headers.module = 'zmq-propagation'
+    headers.source = [
+        'model/zmq-propagation-loss-model.h',
+        'model/zmq-propagation-delay-model.h',
+        'model/zmq-propagation-messages.pb.h', # Protobuf messages
+        'model/zmq-helpers.h',
+        ]
+
+    if bld.env.ENABLE_EXAMPLES:
+        bld.recurse('examples')
+
+    module.use.extend(['ZMQ'])
+    module.use.extend(['PROTOBUF'])
+
+    # bld.ns3_python_bindings()
