@@ -1,5 +1,5 @@
 syntax = "proto3";
-package ns3zmqmessages;
+package phi;
 
 message GlobalContainer {
     enum MessageType {
