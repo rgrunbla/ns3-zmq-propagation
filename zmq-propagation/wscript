@@ -103,7 +103,7 @@ def configure(conf):
 
 def build(bld):
     # We build protobuf messages using protoc
-    generate_proto(bld, 'zmq-messages/messages.proto')
+    generate_proto(bld, 'zmq-messages/zmq-propagation-messages.proto')
 
     module = bld.create_ns3_module('zmq-propagation', ['core', 'network', 'mobility', 'propagation'])
 
