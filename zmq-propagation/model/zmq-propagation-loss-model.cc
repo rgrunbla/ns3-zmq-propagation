@@ -60,10 +60,10 @@ double ExternalPropagationLossModel::DoCalcRxPower(double txPowerDbm,
                                                    Ptr<MobilityModel> b) const {
 
   std::string message;
-  LossQuery loss_query = LossQuery();
-  LossAnswer loss_answer = LossAnswer();
-  Meso meso = Meso();
-  GlobalContainer global_container = GlobalContainer();
+  phi::LossQuery loss_query = phi::LossQuery();
+  phi::LossAnswer loss_answer = phi::LossAnswer();
+  phi::Meso meso = phi::Meso();
+  phi::GlobalContainer global_container = phi::GlobalContainer();
 
   loss_query.set_source_agent_id(a->GetObject<ns3::Node>()->GetId());
   loss_query.set_dest_agent_id(b->GetObject<ns3::Node>()->GetId());
@@ -71,9 +71,9 @@ double ExternalPropagationLossModel::DoCalcRxPower(double txPowerDbm,
   loss_query.set_clock(Simulator::Now().GetSeconds());
   loss_query.SerializeToString(&message);
 
-  MesoSend(this->m_simulationId, message, Meso_MessageType_LOSS_QUERY,
+  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_LOSS_QUERY,
            this->zmq_sock);
-  meso = MesoRecv(Meso_MessageType_LOSS_ANSWER, this->zmq_sock);
+  meso = MesoRecv(phi::Meso_MessageType_LOSS_ANSWER, this->zmq_sock);
 
   loss_answer.ParseFromString(meso.content());
 

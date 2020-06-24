@@ -17,41 +17,46 @@ inline static zmq::detail::send_result_t send(zmq::socket_t& socket, const std::
     return (rc);
 }
 
-inline static void GlobalSend(std::string message, GlobalContainer_MessageType message_type, zmq::socket_t & zmq_socket) {
-    GlobalContainer global_container = GlobalContainer();
+inline static void GlobalSend(std::string message, phi::GlobalContainer_MessageType message_type, zmq::socket_t & zmq_socket) {
+    phi::GlobalContainer global_container = phi::GlobalContainer();
     global_container.set_content(message);
     global_container.set_type(message_type);
     global_container.SerializeToString(&message);
     send(zmq_socket, message);
 }
 
-inline static void MetaSend(std::string message, Meta_MessageType message_type, zmq::socket_t & zmq_socket) {
-    Meta meta = Meta();
+inline static void MetaSend(std::string message, phi::Meta_MessageType message_type, zmq::socket_t & zmq_socket) {
+    phi::Meta meta = phi::Meta();
     meta.set_content(message);
     meta.set_type(message_type);
     meta.SerializeToString(&message);
-    GlobalSend(message, GlobalContainer_MessageType_META, zmq_socket);
+    GlobalSend(message, phi::GlobalContainer_MessageType_META, zmq_socket);
 }
 
-inline static void MesoSend(int simulation_id, std::string message, Meso_MessageType message_type, zmq::socket_t & zmq_socket) {
-    Meso meso = Meso();
+inline static void MesoSend(int simulation_id, std::string message, phi::Meso_MessageType message_type, zmq::socket_t & zmq_socket) {
+    phi::Meso meso = phi::Meso();
     meso.set_content(message);
     meso.set_simulation_id(simulation_id);
     meso.set_type(message_type);
     meso.SerializeToString(&message);
-    GlobalSend(message, GlobalContainer_MessageType_MESO, zmq_socket);
+    GlobalSend(message, phi::GlobalContainer_MessageType_MESO, zmq_socket);
 }
 
-inline static Meso MesoRecv(Meso_MessageType message_type, zmq::socket_t & zmq_socket) {
+inline static phi::Meso MesoRecv(phi::Meso_MessageType message_type, zmq::socket_t & zmq_socket) {
     std::string message;
-    GlobalContainer global_container = GlobalContainer();
-    Meso meso = Meso();
+    phi::GlobalContainer global_container = phi::GlobalContainer();
+    phi::Meso meso = phi::Meso();
     message = s_recv(zmq_socket);
     global_container.ParseFromString(message);
-    assert(global_container.type() == GlobalContainer_MessageType_MESO);
+    assert(global_container.type() == phi::GlobalContainer_MessageType_MESO);
     meso.ParseFromString(global_container.content());
     assert(meso.type() == message_type);
     return meso;
+}
+
+inline static void AckRecv(zmq::socket_t & zmq_socket) {
+    std::string message;
+    message = s_recv(zmq_socket);
 }
 
 #endif // ZMQ_HELPERS_H

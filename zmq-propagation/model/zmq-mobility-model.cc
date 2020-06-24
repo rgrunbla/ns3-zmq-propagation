@@ -18,6 +18,10 @@
 #include "zmq-mobility-model.h"
 #include "ns3/simulator.h"
 #include "ns3/string.h"
+#include "ns3/node.h"
+
+/* Protobuf */
+#include "zmq-propagation-messages.pb.h"
 
 namespace ns3 {
 NS_OBJECT_ENSURE_REGISTERED(ZmqMobilityModel);
@@ -51,12 +55,24 @@ inline Vector ZmqMobilityModel::DoGetVelocity(void) const {
 }
 
 inline Vector ZmqMobilityModel::DoGetPosition(void) const {
-  // TODO
   return Vector(0.0, 0.0, 0.0);
 }
 
 void ZmqMobilityModel::DoSetPosition(const Vector &position) {
   m_position = position;
+  std::string message;
+  phi::SetPosition set_position = phi::SetPosition();
+  set_position.set_clock(Simulator::Now().GetSeconds());
+  set_position.set_agent_id(this->GetObject<Node> ()->GetId());
+  set_position.set_x(position.x);
+  set_position.set_y(position.y);
+  set_position.set_z(position.z);
+  set_position.SerializeToString(&message);
+
+  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_SET_POSITION,
+           this->zmq_sock);
+
+  AckRecv(this->zmq_sock);
   NotifyCourseChange();
 }
 
