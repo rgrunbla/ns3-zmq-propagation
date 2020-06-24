@@ -20,70 +20,53 @@
 #include "ns3/string.h"
 
 namespace ns3 {
-  NS_OBJECT_ENSURE_REGISTERED (ZmqMobilityModel);
+NS_OBJECT_ENSURE_REGISTERED(ZmqMobilityModel);
 
-  TypeId ZmqMobilityModel::GetTypeId (void)
-  {
-    static TypeId tid = TypeId ("ns3::ZmqMobilityModel")
-      .SetParent<MobilityModel> ()
-      .SetGroupName ("Mobility")
-      .AddConstructor<ZmqMobilityModel> ()
-      .AddAttribute ("ZmqEndpoint",
-                    "The endpoint used to communicate with Phi",
-                    StringValue ("ipc:///tmp/PhiEndpoint"),
-                    MakeStringAccessor (&ZmqMobilityModel::m_zmqEndpoint),
-                    MakeStringChecker ())
-    ;
-    return tid;
-  }
+TypeId ZmqMobilityModel::GetTypeId(void) {
+  static TypeId tid =
+      TypeId("ns3::ZmqMobilityModel")
+          .SetParent<MobilityModel>()
+          .SetGroupName("Mobility")
+          .AddConstructor<ZmqMobilityModel>()
+          .AddAttribute("ZmqEndpoint",
+                        "The endpoint used to communicate with Phi",
+                        StringValue("ipc:///tmp/PhiEndpoint"),
+                        MakeStringAccessor(&ZmqMobilityModel::m_zmqEndpoint),
+                        MakeStringChecker());
+  return tid;
+}
 
-  TypeId
-  ZmqMobilityModel::GetInstanceTypeId () const
-  {
-    return GetTypeId ();
-  }
+TypeId ZmqMobilityModel::GetInstanceTypeId() const { return GetTypeId(); }
 
-  ZmqMobilityModel::ZmqMobilityModel () : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ)
-  {
-      this->zmq_sock.connect(m_zmqEndpoint);
-  }
+ZmqMobilityModel::ZmqMobilityModel() : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ) {
+  ObjectBase::ConstructSelf(AttributeConstructionList());
+  this->zmq_sock.connect(m_zmqEndpoint);
+}
 
-  ZmqMobilityModel::~ZmqMobilityModel ()
-  {
-  }
+ZmqMobilityModel::~ZmqMobilityModel() {}
 
-  inline Vector
-  ZmqMobilityModel::DoGetVelocity (void) const
-  {
-    // TODO
-    return Vector (0.0, 0.0, 0.0);
-  }
+inline Vector ZmqMobilityModel::DoGetVelocity(void) const {
+  // TODO
+  return Vector(0.0, 0.0, 0.0);
+}
 
-  inline Vector
-  ZmqMobilityModel::DoGetPosition (void) const
-  {
-    // TODO
-    return Vector (0.0, 0.0, 0.0);
-  }
+inline Vector ZmqMobilityModel::DoGetPosition(void) const {
+  // TODO
+  return Vector(0.0, 0.0, 0.0);
+}
 
-  void 
-  ZmqMobilityModel::DoSetPosition (const Vector &position)
-  {
-    m_position = position;
-    NotifyCourseChange ();
-  }
+void ZmqMobilityModel::DoSetPosition(const Vector &position) {
+  m_position = position;
+  NotifyCourseChange();
+}
 
-  inline glm::dquat
-  ZmqMobilityModel::DoGetOrientation (void) const
-  {
-    // TODO
-    return glm::dquat(glm::dvec3(0.0, 0.0, 0.0));
-  }
+inline glm::dquat ZmqMobilityModel::DoGetOrientation(void) const {
+  // TODO
+  return glm::dquat(glm::dvec3(0.0, 0.0, 0.0));
+}
 
-  void 
-  ZmqMobilityModel::DoSetOrientation (const glm::dquat &orientation)
-  {
-    m_orientation = orientation;
-    NotifyCourseChange ();
-  }
+void ZmqMobilityModel::DoSetOrientation(const glm::dquat &orientation) {
+  m_orientation = orientation;
+  NotifyCourseChange();
+}
 } // namespace ns3

@@ -20,9 +20,9 @@
 
 #include "ns3/mobility-model.h"
 #include "ns3/nstime.h"
+#include "zmq-helpers.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include "zmq-helpers.h"
 #include <zmq.hpp>
 
 namespace ns3 {
@@ -30,33 +30,33 @@ namespace ns3 {
 /**
  * \ingroup mobility
  *
- * \brief Mobility model for which the current acceleration does not change once it has been set and until it is set again explicitly to a new value.
+ * \brief Mobility model for which the current acceleration does not change once
+ * it has been set and until it is set again explicitly to a new value.
  */
-class ZmqMobilityModel : public MobilityModel 
-{
+class ZmqMobilityModel : public MobilityModel {
 public:
   /**
    * Register this type with the TypeId system.
    * \return the object TypeId
    */
-  static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId () const;
+  static TypeId GetTypeId(void);
+  TypeId GetInstanceTypeId() const;
   /**
    * Create position located at coordinates (0,0,0) with
    * speed (0,0,0).
    */
-  ZmqMobilityModel ();
-  virtual ~ZmqMobilityModel ();
+  ZmqMobilityModel();
+  virtual ~ZmqMobilityModel();
 
-  virtual glm::dquat DoGetOrientation (void) const;
-  virtual void DoSetOrientation (const glm::dquat &orientation);
+  virtual glm::dquat DoGetOrientation(void) const;
+  virtual void DoSetOrientation(const glm::dquat &orientation);
 
 private:
-  virtual Vector DoGetPosition (void) const;
-  virtual void DoSetPosition (const Vector &position);
-  virtual Vector DoGetVelocity (void) const;
+  virtual Vector DoGetPosition(void) const;
+  virtual void DoSetPosition(const Vector &position);
+  virtual Vector DoGetVelocity(void) const;
 
-  Vector m_position; //!< the position
+  Vector m_position;        //!< the position
   glm::dquat m_orientation; //!< the orientation
 
   /* Zero MQ */
