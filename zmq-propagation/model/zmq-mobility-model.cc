@@ -16,9 +16,9 @@
  * Author: Rémy Grünblatt <remy@grunblatt.org>
  */
 #include "zmq-mobility-model.h"
+#include "ns3/node.h"
 #include "ns3/simulator.h"
 #include "ns3/string.h"
-#include "ns3/node.h"
 
 /* Protobuf */
 #include "zmq-propagation-messages.pb.h"
@@ -55,7 +55,17 @@ inline Vector ZmqMobilityModel::DoGetVelocity(void) const {
 }
 
 inline Vector ZmqMobilityModel::DoGetPosition(void) const {
-  return Vector(0.0, 0.0, 0.0);
+  std::string message;
+  phi::GetPosition get_position = phi::GetPosition();
+  get_position.set_clock(Simulator::Now().GetSeconds());
+  get_position.set_agent_id(this->GetObject<Node>()->GetId());
+  get_position.SerializeToString(&message);
+  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_GET_POSITION,
+           this->zmq_sock);
+  phi::Position position = phi::Position();
+  position.ParseFromString(MesoRecv(phi::Meso_MessageType_POSITION, this->zmq_sock).content());
+
+  return Vector(position.x(), position.y(), position.z());
 }
 
 void ZmqMobilityModel::DoSetPosition(const Vector &position) {
@@ -63,7 +73,7 @@ void ZmqMobilityModel::DoSetPosition(const Vector &position) {
   std::string message;
   phi::SetPosition set_position = phi::SetPosition();
   set_position.set_clock(Simulator::Now().GetSeconds());
-  set_position.set_agent_id(this->GetObject<Node> ()->GetId());
+  set_position.set_agent_id(this->GetObject<Node>()->GetId());
   set_position.set_x(position.x);
   set_position.set_y(position.y);
   set_position.set_z(position.z);

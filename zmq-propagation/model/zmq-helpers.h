@@ -33,6 +33,18 @@ inline static void MetaSend(std::string message, phi::Meta_MessageType message_t
     GlobalSend(message, phi::GlobalContainer_MessageType_META, zmq_socket);
 }
 
+inline static phi::Meta MetaRecv(phi::Meta_MessageType message_type, zmq::socket_t & zmq_socket) {
+    std::string message;
+    phi::GlobalContainer global_container = phi::GlobalContainer();
+    phi::Meta meta = phi::Meta();
+    message = s_recv(zmq_socket);
+    global_container.ParseFromString(message);
+    assert(global_container.type() == phi::GlobalContainer_MessageType_META);
+    meta.ParseFromString(global_container.content());
+    assert(meta.type() == message_type);
+    return meta;
+}
+
 inline static void MesoSend(int simulation_id, std::string message, phi::Meso_MessageType message_type, zmq::socket_t & zmq_socket) {
     phi::Meso meso = phi::Meso();
     meso.set_content(message);
