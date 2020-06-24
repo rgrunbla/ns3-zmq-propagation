@@ -9,8 +9,6 @@
 #include "ns3/node.h"
 #include "ns3/simulator.h"
 #include <cmath>
-#define PI 3.14159265
-#include <math.h>       /* atan2 */
 
 /* Zero MQ */
 #include <zmq.hpp>
@@ -38,13 +36,18 @@ ExternalPropagationLossModel::GetTypeId (void)
                    IntegerValue (0),
                    MakeIntegerAccessor (&ExternalPropagationLossModel::m_simulationId),
                    MakeIntegerChecker<int> ())
+    .AddAttribute ("ZmqEndpoint",
+                   "The endpoint used to communicate with Phi",
+                   StringValue ("ipc:///tmp/PhiEndpoint"),
+                   MakeStringAccessor (&ExternalPropagationLossModel::m_zmqEndpoint),
+                   MakeStringChecker ())
   ;
   return tid;
 }
 
 ExternalPropagationLossModel::ExternalPropagationLossModel () : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ)
 {
-    this->zmq_sock.connect("ipc:///tmp/2");
+    this->zmq_sock.connect(m_zmqEndpoint);
 }
 
 ExternalPropagationLossModel::~ExternalPropagationLossModel ()
@@ -57,11 +60,11 @@ ExternalPropagationLossModel::DoCalcRxPower (double txPowerDbm,
                                           Ptr<MobilityModel> a,
                                           Ptr<MobilityModel> b) const
 {
+      std::string message;
       LossQuery loss_query = LossQuery();
       LossAnswer loss_answer = LossAnswer();
-      Meso meso;
+      Meso meso = Meso();
       GlobalContainer global_container = GlobalContainer();
-      std::string message;
 
       loss_query.set_source_agent_id(a->GetObject<ns3::Node> ()->GetId ());
       loss_query.set_dest_agent_id(b->GetObject<ns3::Node> ()->GetId ());
@@ -89,6 +92,7 @@ ExternalPropagationLossModel::DoCalcRxPower (double txPowerDbm,
       meso.ParseFromString(global_container.content());
       assert(meso.type() == Meso_MessageType_LOSS_ANSWER);
       loss_answer.ParseFromString(meso.content());
+
       return txPowerDbm + loss_answer.power();
     }
 

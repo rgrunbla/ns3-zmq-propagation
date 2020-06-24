@@ -58,13 +58,12 @@ private:
                                 Ptr<MobilityModel> a,
                                 Ptr<MobilityModel> b) const;
   virtual int64_t DoAssignStreams (int64_t stream);
-
-  private:
   
   /* Zero MQ */
   zmq::context_t zmq_ctx;
   mutable zmq::socket_t zmq_sock;
   int m_simulationId;
+  std::string m_zmqEndpoint;
 };
 
 } // namespace ns3

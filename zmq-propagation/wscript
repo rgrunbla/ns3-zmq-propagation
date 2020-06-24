@@ -109,7 +109,7 @@ def build(bld):
 
     module.source = [
         'model/zmq-propagation-loss-model.cc',
-        'model/zmq-propagation-delay-model.cc',
+        'model/zmq-mobility-model.cc',
         'model/zmq-propagation-messages.pb.cc' # Protobuf messages
         ]
 
@@ -127,7 +127,7 @@ def build(bld):
     headers.module = 'zmq-propagation'
     headers.source = [
         'model/zmq-propagation-loss-model.h',
-        'model/zmq-propagation-delay-model.h',
+        'model/zmq-mobility-model.h',
         'model/zmq-propagation-messages.pb.h', # Protobuf messages
         'model/zmq-helpers.h',
         ]
