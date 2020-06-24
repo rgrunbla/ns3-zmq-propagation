@@ -37,6 +37,7 @@ public:
    * \return the object TypeId
    */
   static TypeId GetTypeId (void);
+  TypeId GetInstanceTypeId () const;
   ExternalPropagationLossModel ();
   ~ExternalPropagationLossModel ();
 

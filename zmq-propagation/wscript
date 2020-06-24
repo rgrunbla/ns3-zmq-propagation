@@ -19,8 +19,6 @@ def generate_proto(context, source):
         protoc_command = [context.env['WITH_PROTOC'], '--proto_path', os.path.dirname(source), '--cpp_out', context.path.abspath() + '/model', source]
         check_output(protoc_command).decode("utf-8")
         print("Generating protobuf messages")
-    else:
-        print("Skipping protobuf messages generation")
 
 def configure(conf):
     # ZeroMQ

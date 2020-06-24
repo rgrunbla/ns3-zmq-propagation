@@ -2,7 +2,6 @@
 
 #include "ns3/core-module.h"
 #include "ns3/zmq-propagation-loss-model.h"
-#include "ns3/zmq-propagation-delay-model.h"
 
 using namespace ns3;
 

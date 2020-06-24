@@ -20,6 +20,10 @@
 
 #include "ns3/mobility-model.h"
 #include "ns3/nstime.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include "zmq-helpers.h"
+#include <zmq.hpp>
 
 namespace ns3 {
 
@@ -36,28 +40,24 @@ public:
    * \return the object TypeId
    */
   static TypeId GetTypeId (void);
+  TypeId GetInstanceTypeId () const;
   /**
    * Create position located at coordinates (0,0,0) with
    * speed (0,0,0).
    */
   ZmqMobilityModel ();
   virtual ~ZmqMobilityModel ();
-  /**
-   * Set the model's velocity and acceleration
-   * \param velocity the velocity (m/s)
-   * \param acceleration the acceleration (m/s^2)
-   */
-  void SetVelocityAndAcceleration (const Vector &velocity, const Vector &acceleration);
+
+  virtual glm::dquat DoGetOrientation (void) const;
+  virtual void DoSetOrientation (const glm::dquat &orientation);
 
 private:
   virtual Vector DoGetPosition (void) const;
   virtual void DoSetPosition (const Vector &position);
   virtual Vector DoGetVelocity (void) const;
 
-  Time m_baseTime;  //!< the base time
-  Vector m_basePosition; //!< the base position
-  Vector m_baseVelocity; //!< the base velocity
-  Vector m_acceleration;  //!< the acceleration
+  Vector m_position; //!< the position
+  glm::dquat m_orientation; //!< the orientation
 
   /* Zero MQ */
   zmq::context_t zmq_ctx;

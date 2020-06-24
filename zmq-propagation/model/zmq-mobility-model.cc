@@ -17,73 +17,73 @@
  */
 #include "zmq-mobility-model.h"
 #include "ns3/simulator.h"
+#include "ns3/string.h"
 
 namespace ns3 {
+  NS_OBJECT_ENSURE_REGISTERED (ZmqMobilityModel);
 
-NS_OBJECT_ENSURE_REGISTERED (ZmqMobilityModel);
+  TypeId ZmqMobilityModel::GetTypeId (void)
+  {
+    static TypeId tid = TypeId ("ns3::ZmqMobilityModel")
+      .SetParent<MobilityModel> ()
+      .SetGroupName ("Mobility")
+      .AddConstructor<ZmqMobilityModel> ()
+      .AddAttribute ("ZmqEndpoint",
+                    "The endpoint used to communicate with Phi",
+                    StringValue ("ipc:///tmp/PhiEndpoint"),
+                    MakeStringAccessor (&ZmqMobilityModel::m_zmqEndpoint),
+                    MakeStringChecker ())
+    ;
+    return tid;
+  }
 
-TypeId ZmqMobilityModel::GetTypeId (void)
-{
-  static TypeId tid = TypeId ("ns3::ZmqMobilityModel")
-    .SetParent<MobilityModel> ()
-    .SetGroupName ("Mobility")
-    .AddConstructor<ZmqMobilityModel> ()
-    .AddAttribute ("ZmqEndpoint",
-                   "The endpoint used to communicate with Phi",
-                   StringValue ("ipc:///tmp/PhiEndpoint"),
-                   MakeStringAccessor (&ExternalPropagationLossModel::m_zmqEndpoint),
-                   MakeStringChecker ())             
-  ;
-  return tid;
-}
+  TypeId
+  ZmqMobilityModel::GetInstanceTypeId () const
+  {
+    return GetTypeId ();
+  }
 
-ZmqMobilityModel::ZmqMobilityModel () : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ)
-{
-    this->zmq_sock.connect(m_zmqEndpoint);
-}
+  ZmqMobilityModel::ZmqMobilityModel () : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ)
+  {
+      this->zmq_sock.connect(m_zmqEndpoint);
+  }
 
-ZmqMobilityModel::~ZmqMobilityModel ()
-{
-}
+  ZmqMobilityModel::~ZmqMobilityModel ()
+  {
+  }
 
-inline Vector
-ZmqMobilityModel::DoGetVelocity (void) const
-{
-  double t = (Simulator::Now () - m_baseTime).GetSeconds ();
-  return Vector (m_baseVelocity.x + m_acceleration.x*t,
-                 m_baseVelocity.y + m_acceleration.y*t,
-                 m_baseVelocity.z + m_acceleration.z*t);
-}
+  inline Vector
+  ZmqMobilityModel::DoGetVelocity (void) const
+  {
+    // TODO
+    return Vector (0.0, 0.0, 0.0);
+  }
 
-inline Vector
-ZmqMobilityModel::DoGetPosition (void) const
-{
-  double t = (Simulator::Now () - m_baseTime).GetSeconds ();
-  double half_t_square = t*t*0.5;
-  return Vector (m_basePosition.x + m_baseVelocity.x*t + m_acceleration.x*half_t_square,
-                 m_basePosition.y + m_baseVelocity.y*t + m_acceleration.y*half_t_square,
-                 m_basePosition.z + m_baseVelocity.z*t + m_acceleration.z*half_t_square);
-}
+  inline Vector
+  ZmqMobilityModel::DoGetPosition (void) const
+  {
+    // TODO
+    return Vector (0.0, 0.0, 0.0);
+  }
 
-void 
-ZmqMobilityModel::DoSetPosition (const Vector &position)
-{
-  m_baseVelocity = DoGetVelocity ();
-  m_baseTime = Simulator::Now ();
-  m_basePosition = position;
-  NotifyCourseChange ();
-}
+  void 
+  ZmqMobilityModel::DoSetPosition (const Vector &position)
+  {
+    m_position = position;
+    NotifyCourseChange ();
+  }
 
-void 
-ZmqMobilityModel::SetVelocityAndAcceleration (const Vector &velocity,
-                                                               const Vector &acceleration)
-{
-  m_basePosition = DoGetPosition ();
-  m_baseTime = Simulator::Now ();
-  m_baseVelocity = velocity;
-  m_acceleration = acceleration;
-  NotifyCourseChange ();
-}
+  inline glm::dquat
+  ZmqMobilityModel::DoGetOrientation (void) const
+  {
+    // TODO
+    return glm::dquat(glm::dvec3(0.0, 0.0, 0.0));
+  }
 
-
+  void 
+  ZmqMobilityModel::DoSetOrientation (const glm::dquat &orientation)
+  {
+    m_orientation = orientation;
+    NotifyCourseChange ();
+  }
 } // namespace ns3

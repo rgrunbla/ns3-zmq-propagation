@@ -45,21 +45,31 @@ ExternalPropagationLossModel::GetTypeId (void)
   return tid;
 }
 
+TypeId
+ExternalPropagationLossModel::GetInstanceTypeId () const
+{
+  return GetTypeId ();
+}
+
 ExternalPropagationLossModel::ExternalPropagationLossModel () : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ)
 {
-    this->zmq_sock.connect(m_zmqEndpoint);
+    ObjectBase::ConstructSelf (AttributeConstructionList ());
+    const char *char_endpoint = m_zmqEndpoint.c_str();
+    std::cout << "'" << m_zmqEndpoint << "'\n";
+    std::cout << "'" << char_endpoint << "'\n";
+    this->zmq_sock.connect(char_endpoint);
 }
 
 ExternalPropagationLossModel::~ExternalPropagationLossModel ()
 {
 }
 
-
 double
 ExternalPropagationLossModel::DoCalcRxPower (double txPowerDbm,
                                           Ptr<MobilityModel> a,
                                           Ptr<MobilityModel> b) const
 {
+  
       std::string message;
       LossQuery loss_query = LossQuery();
       LossAnswer loss_answer = LossAnswer();
@@ -72,25 +82,9 @@ ExternalPropagationLossModel::DoCalcRxPower (double txPowerDbm,
       loss_query.set_clock(Simulator::Now().GetSeconds());
       loss_query.SerializeToString(&message);
 
-      meso.set_type(Meso_MessageType_LOSS_QUERY);
-      meso.set_simulation_id(this->m_simulationId);
-      meso.set_content(message);
-      meso.SerializeToString(&message);
-
-      global_container.set_content(message);
-      global_container.set_type(GlobalContainer_MessageType_MESO);
-      global_container.SerializeToString(&message);
-
-      send(this->zmq_sock, message);
-      message = s_recv(this->zmq_sock);
-
-      global_container.Clear();
-      meso.Clear();
-
-      global_container.ParseFromString(message);
-      assert(global_container.type() == GlobalContainer_MessageType_MESO);
-      meso.ParseFromString(global_container.content());
-      assert(meso.type() == Meso_MessageType_LOSS_ANSWER);
+      MesoSend(this->m_simulationId, message, Meso_MessageType_LOSS_QUERY, this->zmq_sock);
+      meso = MesoRecv(Meso_MessageType_LOSS_ANSWER, this->zmq_sock);
+      
       loss_answer.ParseFromString(meso.content());
 
       return txPowerDbm + loss_answer.power();
