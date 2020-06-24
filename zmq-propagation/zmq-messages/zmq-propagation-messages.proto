@@ -1,5 +1,5 @@
-package ns3zmqmessages;
 syntax = "proto3";
+package ns3zmqmessages;
 
 message GlobalContainer {
     enum MessageType {
