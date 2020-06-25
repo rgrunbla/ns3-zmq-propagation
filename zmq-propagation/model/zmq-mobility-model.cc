@@ -19,6 +19,7 @@
 #include "ns3/node.h"
 #include "ns3/simulator.h"
 #include "ns3/string.h"
+#include "ns3/integer.h"
 
 /* Protobuf */
 #include "zmq-propagation-messages.pb.h"
@@ -32,6 +33,11 @@ TypeId ZmqMobilityModel::GetTypeId(void) {
           .SetParent<MobilityModel>()
           .SetGroupName("Mobility")
           .AddConstructor<ZmqMobilityModel>()
+          .AddAttribute("SimulationId", "The simulation ID to send to Phi",
+                        IntegerValue(0),
+                        MakeIntegerAccessor(
+                            &ZmqMobilityModel::m_simulationId),
+                        MakeIntegerChecker<int>())
           .AddAttribute("ZmqEndpoint",
                         "The endpoint used to communicate with Phi",
                         StringValue("ipc:///tmp/PhiEndpoint"),
@@ -93,6 +99,19 @@ inline glm::dquat ZmqMobilityModel::DoGetOrientation(void) const {
 
 void ZmqMobilityModel::DoSetOrientation(const glm::dquat &orientation) {
   m_orientation = orientation;
+  std::string message;
+  phi::SetPosition set_position = phi::SetPosition();
+  set_position.set_clock(Simulator::Now().GetSeconds());
+  set_position.set_agent_id(this->GetObject<Node>()->GetId());
+  set_position.set_x(position.x);
+  set_position.set_y(position.y);
+  set_position.set_z(position.z);
+  set_position.SerializeToString(&message);
+
+  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_SET_POSITION,
+           this->zmq_sock);
+
+  AckRecv(this->zmq_sock);
   NotifyCourseChange();
 }
 } // namespace ns3
