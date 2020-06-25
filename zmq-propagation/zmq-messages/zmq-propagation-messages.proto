@@ -46,6 +46,7 @@ message Meso {
         POSITION = 8;
         GET_ORIENTATION = 9;
         SET_ORIENTATION = 10;
+        ORIENTATION = 11;
     }
     MessageType type = 1;
     int32 simulation_id = 2;
