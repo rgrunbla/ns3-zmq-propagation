@@ -201,3 +201,24 @@ message Position {
     float y = 2;
     float z = 3;
 }
+
+message GetOrientation {
+    double clock = 1;
+    int32 agent_id = 2;
+}
+
+message SetOrientation {
+    double clock = 1;
+    int32 agent_id = 2;
+    float x = 3;
+    float y = 4;
+    float z = 5;
+    float w = 6;
+}
+
+message Orientation {
+    float x = 1;
+    float y = 2;
+    float z = 3;
+    float w = 4;
+}
