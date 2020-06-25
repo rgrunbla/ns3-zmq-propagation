@@ -146,7 +146,8 @@ message Throughputs {
 
 message InitQuery {
     int32 agent_number = 1;
-    repeated AgentInfo info = 2;
+    repeated string agent_type = 2;
+    repeated int32 agent_id = 3;
 }
 
 message InitAnswer {
@@ -196,9 +197,7 @@ message SetPosition {
 }
 
 message Position {
-    double clock = 1;
-    int32 agent_id = 2;
-    float x = 3;
-    float y = 4;
-    float z = 5;
+    float x = 1;
+    float y = 2;
+    float z = 3;
 }
