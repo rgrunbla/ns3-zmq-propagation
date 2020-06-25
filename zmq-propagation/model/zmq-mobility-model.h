@@ -48,8 +48,8 @@ public:
   ZmqMobilityModel();
   virtual ~ZmqMobilityModel();
 
-  virtual glm::dquat DoGetOrientation(void) const;
-  virtual void DoSetOrientation(const glm::dquat &orientation);
+  virtual glm::dquat GetOrientation(void) const;
+  virtual void SetOrientation(const glm::dquat &orientation);
 
 private:
   virtual Vector DoGetPosition(void) const;
