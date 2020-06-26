@@ -60,12 +60,10 @@ inline Vector ZmqMobilityModel::DoGetVelocity(void) const {
 }
 
 inline Vector ZmqMobilityModel::DoGetPosition(void) const {
-  std::string message;
   phi::GetPosition get_position = phi::GetPosition();
   get_position.set_clock(Simulator::Now().GetSeconds());
   get_position.set_agent_id(this->GetObject<Node>()->GetId());
-  get_position.SerializeToString(&message);
-  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_GET_POSITION,
+  MesoSend(this->m_simulationId, get_position, phi::Meso_MessageType_GET_POSITION,
            this->zmq_sock);
   phi::Position position = phi::Position();
   position.ParseFromString(
@@ -76,16 +74,14 @@ inline Vector ZmqMobilityModel::DoGetPosition(void) const {
 
 void ZmqMobilityModel::DoSetPosition(const Vector &position) {
   m_position = position;
-  std::string message;
   phi::SetPosition set_position = phi::SetPosition();
   set_position.set_clock(Simulator::Now().GetSeconds());
   set_position.set_agent_id(this->GetObject<Node>()->GetId());
   set_position.set_x(position.x);
   set_position.set_y(position.y);
   set_position.set_z(position.z);
-  set_position.SerializeToString(&message);
 
-  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_SET_POSITION,
+  MesoSend(this->m_simulationId, get_position, phi::Meso_MessageType_SET_POSITION,
            this->zmq_sock);
 
   AckRecv(this->zmq_sock);
@@ -93,12 +89,10 @@ void ZmqMobilityModel::DoSetPosition(const Vector &position) {
 }
 
 inline glm::dquat ZmqMobilityModel::GetOrientation(void) const {
-  std::string message;
   phi::GetOrientation get_orientation = phi::GetOrientation();
   get_orientation.set_clock(Simulator::Now().GetSeconds());
   get_orientation.set_agent_id(this->GetObject<Node>()->GetId());
-  get_orientation.SerializeToString(&message);
-  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_GET_ORIENTATION,
+  MesoSend(this->m_simulationId, get_orientation, phi::Meso_MessageType_GET_ORIENTATION,
            this->zmq_sock);
   phi::Orientation orientation = phi::Orientation();
   orientation.ParseFromString(
@@ -114,7 +108,6 @@ inline glm::dquat ZmqMobilityModel::GetOrientation(void) const {
 
 void ZmqMobilityModel::SetOrientation(const glm::dquat &orientation) {
   m_orientation = orientation;
-  std::string message;
   phi::SetOrientation set_orientation = phi::SetOrientation();
   set_orientation.set_clock(Simulator::Now().GetSeconds());
   set_orientation.set_agent_id(this->GetObject<Node>()->GetId());
@@ -122,9 +115,8 @@ void ZmqMobilityModel::SetOrientation(const glm::dquat &orientation) {
   set_orientation.set_y(orientation.y);
   set_orientation.set_z(orientation.z);
   set_orientation.set_w(orientation.w);
-  set_orientation.SerializeToString(&message);
 
-  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_SET_ORIENTATION,
+  MesoSend(this->m_simulationId, set_orientation, phi::Meso_MessageType_SET_ORIENTATION,
            this->zmq_sock);
 
   AckRecv(this->zmq_sock);

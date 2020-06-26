@@ -69,9 +69,8 @@ double ExternalPropagationLossModel::DoCalcRxPower(double txPowerDbm,
   loss_query.set_dest_agent_id(b->GetObject<ns3::Node>()->GetId());
   loss_query.set_power(txPowerDbm);
   loss_query.set_clock(Simulator::Now().GetSeconds());
-  loss_query.SerializeToString(&message);
 
-  MesoSend(this->m_simulationId, message, phi::Meso_MessageType_LOSS_QUERY,
+  MesoSend(this->m_simulationId, loss_query, phi::Meso_MessageType_LOSS_QUERY,
            this->zmq_sock);
   meso = MesoRecv(phi::Meso_MessageType_LOSS_ANSWER, this->zmq_sock);
 

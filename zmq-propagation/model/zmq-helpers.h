@@ -2,6 +2,7 @@
 #define ZMQ_HELPERS_H
 
 #include <zmq.hpp>
+#include <google/protobuf/message_lite.h>
 #include "zmq-propagation-messages.pb.h"
 
 inline static std::string s_recv (zmq::socket_t & socket, zmq::recv_flags flags = zmq::recv_flags::none) {
@@ -17,20 +18,25 @@ inline static zmq::detail::send_result_t send(zmq::socket_t& socket, const std::
     return (rc);
 }
 
-inline static void GlobalSend(std::string message, phi::GlobalContainer_MessageType message_type, zmq::socket_t & zmq_socket) {
+
+inline static void GlobalSend(google::protobuf::MessageLite &message, phi::GlobalContainer_MessageType message_type, zmq::socket_t & zmq_socket) {
+    std::string content;
     phi::GlobalContainer global_container = phi::GlobalContainer();
-    global_container.set_content(message);
+    message.SerializeToString(&content);
+    global_container.set_content(content);
     global_container.set_type(message_type);
-    global_container.SerializeToString(&message);
-    send(zmq_socket, message);
+    global_container.SerializeToString(&content);
+    send(zmq_socket, content);
 }
 
-inline static void MetaSend(std::string message, phi::Meta_MessageType message_type, zmq::socket_t & zmq_socket) {
+
+inline static void MetaSend(google::protobuf::MessageLite &message, phi::Meta_MessageType message_type, zmq::socket_t & zmq_socket) {
     phi::Meta meta = phi::Meta();
-    meta.set_content(message);
+    std::string content;
+    message.SerializeToString(&content);
+    meta.set_content(content);
     meta.set_type(message_type);
-    meta.SerializeToString(&message);
-    GlobalSend(message, phi::GlobalContainer_MessageType_META, zmq_socket);
+    GlobalSend(meta, phi::GlobalContainer_MessageType_META, zmq_socket);
 }
 
 inline static phi::Meta MetaRecv(phi::Meta_MessageType message_type, zmq::socket_t & zmq_socket) {
@@ -45,13 +51,15 @@ inline static phi::Meta MetaRecv(phi::Meta_MessageType message_type, zmq::socket
     return meta;
 }
 
-inline static void MesoSend(int simulation_id, std::string message, phi::Meso_MessageType message_type, zmq::socket_t & zmq_socket) {
+
+inline static void MesoSend(int simulation_id, google::protobuf::MessageLite &message, phi::Meso_MessageType message_type, zmq::socket_t & zmq_socket) {
+    std::string content;
     phi::Meso meso = phi::Meso();
-    meso.set_content(message);
+    message.SerializeToString(&content);
+    meso.set_content(content);
     meso.set_simulation_id(simulation_id);
     meso.set_type(message_type);
-    meso.SerializeToString(&message);
-    GlobalSend(message, phi::GlobalContainer_MessageType_MESO, zmq_socket);
+    GlobalSend(meso, phi::GlobalContainer_MessageType_MESO, zmq_socket);
 }
 
 inline static phi::Meso MesoRecv(phi::Meso_MessageType message_type, zmq::socket_t & zmq_socket) {
@@ -65,6 +73,8 @@ inline static phi::Meso MesoRecv(phi::Meso_MessageType message_type, zmq::socket
     assert(meso.type() == message_type);
     return meso;
 }
+
+
 
 inline static void AckRecv(zmq::socket_t & zmq_socket) {
     std::string message;
