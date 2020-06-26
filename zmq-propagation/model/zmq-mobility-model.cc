@@ -81,7 +81,7 @@ void ZmqMobilityModel::DoSetPosition(const Vector &position) {
   set_position.set_y(position.y);
   set_position.set_z(position.z);
 
-  MesoSend(this->m_simulationId, get_position, phi::Meso_MessageType_SET_POSITION,
+  MesoSend(this->m_simulationId, set_position, phi::Meso_MessageType_SET_POSITION,
            this->zmq_sock);
 
   AckRecv(this->zmq_sock);
