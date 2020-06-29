@@ -63,8 +63,8 @@ inline Vector ZmqMobilityModel::DoGetPosition(void) const {
   phi::GetPosition get_position = phi::GetPosition();
   get_position.set_clock(Simulator::Now().GetSeconds());
   get_position.set_agent_id(this->GetObject<Node>()->GetId());
-  MesoSend(this->m_simulationId, get_position, phi::Meso_MessageType_GET_POSITION,
-           this->zmq_sock);
+  MesoSend(this->m_simulationId, get_position,
+           phi::Meso_MessageType_GET_POSITION, this->zmq_sock);
   phi::Position position = phi::Position();
   position.ParseFromString(
       MesoRecv(phi::Meso_MessageType_POSITION, this->zmq_sock).content());
@@ -81,8 +81,8 @@ void ZmqMobilityModel::DoSetPosition(const Vector &position) {
   set_position.set_y(position.y);
   set_position.set_z(position.z);
 
-  MesoSend(this->m_simulationId, set_position, phi::Meso_MessageType_SET_POSITION,
-           this->zmq_sock);
+  MesoSend(this->m_simulationId, set_position,
+           phi::Meso_MessageType_SET_POSITION, this->zmq_sock);
 
   AckRecv(this->zmq_sock);
   NotifyCourseChange();
@@ -92,8 +92,8 @@ inline glm::dquat ZmqMobilityModel::GetOrientation(void) const {
   phi::GetOrientation get_orientation = phi::GetOrientation();
   get_orientation.set_clock(Simulator::Now().GetSeconds());
   get_orientation.set_agent_id(this->GetObject<Node>()->GetId());
-  MesoSend(this->m_simulationId, get_orientation, phi::Meso_MessageType_GET_ORIENTATION,
-           this->zmq_sock);
+  MesoSend(this->m_simulationId, get_orientation,
+           phi::Meso_MessageType_GET_ORIENTATION, this->zmq_sock);
   phi::Orientation orientation = phi::Orientation();
   orientation.ParseFromString(
       MesoRecv(phi::Meso_MessageType_ORIENTATION, this->zmq_sock).content());
@@ -116,8 +116,8 @@ void ZmqMobilityModel::SetOrientation(const glm::dquat &orientation) {
   set_orientation.set_z(orientation.z);
   set_orientation.set_w(orientation.w);
 
-  MesoSend(this->m_simulationId, set_orientation, phi::Meso_MessageType_SET_ORIENTATION,
-           this->zmq_sock);
+  MesoSend(this->m_simulationId, set_orientation,
+           phi::Meso_MessageType_SET_ORIENTATION, this->zmq_sock);
 
   AckRecv(this->zmq_sock);
   NotifyCourseChange();

@@ -21,6 +21,8 @@ def generate_proto(context, source):
         print("Generating protobuf messages")
 
 def configure(conf):
+    conf.env.append_value("CXXFLAGS", "-I/home/rgrunbla/libs/include/")
+    
     # ZeroMQ
     if Options.options.with_zmq:
         if os.path.isdir(Options.options.with_zmq):
@@ -86,7 +88,8 @@ def configure(conf):
 
     try:
         output = check_output([conf.env['WITH_PROTOC'], '--version']).decode("utf-8")
-        if match := re.search("[0-9.]+", output, re.IGNORECASE):
+        match = re.search("[0-9.]+", output, re.IGNORECASE)
+        if match:
             protoc_version = match.group(0)
             if version.parse(protoc_version) > version.parse(protoc_min_version):
                 conf.msg("Protoc version check", ("%s > %s" % (protoc_version, protoc_min_version)))
