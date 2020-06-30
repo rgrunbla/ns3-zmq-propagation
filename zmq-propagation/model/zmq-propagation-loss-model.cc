@@ -29,7 +29,6 @@ TypeId ExternalPropagationLossModel::GetTypeId(void) {
       TypeId("ns3::ExternalPropagationLossModel")
           .SetParent<PropagationLossModel>()
           .SetGroupName("Propagation")
-          .AddConstructor<ExternalPropagationLossModel>()
           .AddAttribute("SimulationId", "The simulation ID to send to Phi",
                         IntegerValue(0),
                         MakeIntegerAccessor(
@@ -47,8 +46,8 @@ TypeId ExternalPropagationLossModel::GetInstanceTypeId() const {
   return GetTypeId();
 }
 
-ExternalPropagationLossModel::ExternalPropagationLossModel()
-    : zmq_ctx(0), zmq_sock(zmq_ctx, ZMQ_REQ) {
+ExternalPropagationLossModel::ExternalPropagationLossModel(zmq::context_t & context)
+    : zmq_sock(context, ZMQ_REQ) {
   ObjectBase::ConstructSelf(AttributeConstructionList());
   this->zmq_sock.connect(m_zmqEndpoint);
 }

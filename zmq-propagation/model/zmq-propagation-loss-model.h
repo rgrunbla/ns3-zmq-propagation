@@ -38,7 +38,7 @@ public:
    */
   static TypeId GetTypeId(void);
   TypeId GetInstanceTypeId() const;
-  ExternalPropagationLossModel();
+  ExternalPropagationLossModel(zmq::context_t&);
   ~ExternalPropagationLossModel();
 
 private:
@@ -60,7 +60,6 @@ private:
   virtual int64_t DoAssignStreams(int64_t stream);
 
   /* Zero MQ */
-  zmq::context_t zmq_ctx;
   mutable zmq::socket_t zmq_sock;
   int m_simulationId;
   std::string m_zmqEndpoint;
