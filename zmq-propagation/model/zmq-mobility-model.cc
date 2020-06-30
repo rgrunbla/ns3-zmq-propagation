@@ -32,7 +32,6 @@ TypeId ZmqMobilityModel::GetTypeId(void) {
       TypeId("ns3::ZmqMobilityModel")
           .SetParent<MobilityModel>()
           .SetGroupName("Mobility")
-          .AddConstructor<ZmqMobilityModel>()
           .AddAttribute("SimulationId", "The simulation ID to send to Phi",
                         IntegerValue(0),
                         MakeIntegerAccessor(&ZmqMobilityModel::m_simulationId),
@@ -47,7 +46,8 @@ TypeId ZmqMobilityModel::GetTypeId(void) {
 
 TypeId ZmqMobilityModel::GetInstanceTypeId() const { return GetTypeId(); }
 
-ZmqMobilityModel::ZmqMobilityModel() : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ) {
+ZmqMobilityModel::ZmqMobilityModel(zmq::context_t & context)
+    : zmq_sock(context, ZMQ_REQ) {
   ObjectBase::ConstructSelf(AttributeConstructionList());
   this->zmq_sock.connect(m_zmqEndpoint);
 }

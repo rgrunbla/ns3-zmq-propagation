@@ -45,7 +45,7 @@ public:
    * Create position located at coordinates (0,0,0) with
    * speed (0,0,0).
    */
-  ZmqMobilityModel();
+  ZmqMobilityModel(zmq::context_t&);
   virtual ~ZmqMobilityModel();
 
   virtual glm::dquat GetOrientation(void) const;
@@ -60,7 +60,6 @@ private:
   glm::dquat m_orientation; //!< the orientation
 
   /* Zero MQ */
-  zmq::context_t zmq_ctx;
   mutable zmq::socket_t zmq_sock;
   int m_simulationId;
   std::string m_zmqEndpoint;
