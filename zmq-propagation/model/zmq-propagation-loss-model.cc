@@ -37,7 +37,7 @@ TypeId ExternalPropagationLossModel::GetTypeId(void) {
                         MakeIntegerChecker<int>())
           .AddAttribute(
               "ZmqEndpoint", "The endpoint used to communicate with Phi",
-              StringValue("ipc:///tmp/PhiEndpoint"),
+              StringValue("inproc:///tmp/PhiEndpoint"),
               MakeStringAccessor(&ExternalPropagationLossModel::m_zmqEndpoint),
               MakeStringChecker());
   return tid;
@@ -48,7 +48,7 @@ TypeId ExternalPropagationLossModel::GetInstanceTypeId() const {
 }
 
 ExternalPropagationLossModel::ExternalPropagationLossModel()
-    : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ) {
+    : zmq_ctx(0), zmq_sock(zmq_ctx, ZMQ_REQ) {
   ObjectBase::ConstructSelf(AttributeConstructionList());
   this->zmq_sock.connect(m_zmqEndpoint);
 }

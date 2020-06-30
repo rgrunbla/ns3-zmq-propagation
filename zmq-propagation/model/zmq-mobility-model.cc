@@ -39,7 +39,7 @@ TypeId ZmqMobilityModel::GetTypeId(void) {
                         MakeIntegerChecker<int>())
           .AddAttribute("ZmqEndpoint",
                         "The endpoint used to communicate with Phi",
-                        StringValue("ipc:///tmp/PhiEndpoint"),
+                        StringValue("inproc:///tmp/PhiEndpoint"),
                         MakeStringAccessor(&ZmqMobilityModel::m_zmqEndpoint),
                         MakeStringChecker());
   return tid;
@@ -47,7 +47,7 @@ TypeId ZmqMobilityModel::GetTypeId(void) {
 
 TypeId ZmqMobilityModel::GetInstanceTypeId() const { return GetTypeId(); }
 
-ZmqMobilityModel::ZmqMobilityModel() : zmq_ctx(1), zmq_sock(zmq_ctx, ZMQ_REQ) {
+ZmqMobilityModel::ZmqMobilityModel() : zmq_ctx(0), zmq_sock(zmq_ctx, ZMQ_REQ) {
   ObjectBase::ConstructSelf(AttributeConstructionList());
   this->zmq_sock.connect(m_zmqEndpoint);
 }
