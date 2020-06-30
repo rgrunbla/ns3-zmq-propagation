@@ -18,11 +18,11 @@
 #ifndef ZMQ_MOBILITY_MODEL_H
 #define ZMQ_MOBILITY_MODEL_H
 
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 #include "ns3/mobility-model.h"
 #include "ns3/nstime.h"
 #include "zmq-helpers.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
 #include "zmq.hpp"
 
 namespace ns3 {
@@ -45,10 +45,10 @@ public:
    * Create position located at coordinates (0,0,0) with
    * speed (0,0,0).
    */
-  ZmqMobilityModel(zmq::context_t&);
+  ZmqMobilityModel(zmq::context_t &);
   virtual ~ZmqMobilityModel();
 
-  void connect();
+  void setupAndConnect(zmq::context_t &);
 
   virtual glm::dquat GetOrientation(void) const;
   virtual void SetOrientation(const glm::dquat &orientation);
@@ -62,7 +62,8 @@ private:
   glm::dquat m_orientation; //!< the orientation
 
   /* Zero MQ */
-  mutable zmq::socket_t zmq_sock;
+  bool connected;
+  std::unique_ptr<zmq::socket_t> zmq_sock;
   int m_simulationId;
   std::string m_zmqEndpoint;
 };
