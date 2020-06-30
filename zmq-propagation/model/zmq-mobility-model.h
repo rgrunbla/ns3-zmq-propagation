@@ -45,7 +45,7 @@ public:
    * Create position located at coordinates (0,0,0) with
    * speed (0,0,0).
    */
-  ZmqMobilityModel(zmq::context_t &);
+  ZmqMobilityModel();
   virtual ~ZmqMobilityModel();
 
   void setupAndConnect(zmq::context_t &);
