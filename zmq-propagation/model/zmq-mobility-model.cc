@@ -132,7 +132,7 @@ void ZmqMobilityModel::SetOrientation(const glm::dquat &orientation) {
   if (!this->connected) {
     std::cout << "WARNING: Setting the orientation without being connected. "
                  "You should call setupAndConnect first!\n";
-    return glm::dquat(glm::dvec3(0.0, 0.0, 0.0));
+    return;
   }
 
   m_orientation = orientation;
