@@ -48,6 +48,8 @@ public:
   ZmqMobilityModel(zmq::context_t&);
   virtual ~ZmqMobilityModel();
 
+  void connect();
+
   virtual glm::dquat GetOrientation(void) const;
   virtual void SetOrientation(const glm::dquat &orientation);
 

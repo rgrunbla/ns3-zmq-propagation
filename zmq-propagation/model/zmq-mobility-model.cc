@@ -46,11 +46,8 @@ TypeId ZmqMobilityModel::GetTypeId(void) {
 
 TypeId ZmqMobilityModel::GetInstanceTypeId() const { return GetTypeId(); }
 
-ZmqMobilityModel::ZmqMobilityModel(zmq::context_t & context)
-    : zmq_sock(context, ZMQ_REQ) {
-  ObjectBase::ConstructSelf(AttributeConstructionList());
-  this->zmq_sock.connect(m_zmqEndpoint);
-}
+ZmqMobilityModel::ZmqMobilityModel(zmq::context_t &context)
+    : zmq_sock(context, ZMQ_REQ) {}
 
 ZmqMobilityModel::~ZmqMobilityModel() {}
 
@@ -58,6 +55,8 @@ inline Vector ZmqMobilityModel::DoGetVelocity(void) const {
   // TODO
   return Vector(0.0, 0.0, 0.0);
 }
+
+void ZmqMobilityModel::connect() { this->zmq_sock.connect(m_zmqEndpoint); }
 
 inline Vector ZmqMobilityModel::DoGetPosition(void) const {
   phi::GetPosition get_position = phi::GetPosition();
