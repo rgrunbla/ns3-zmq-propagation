@@ -39,7 +39,7 @@ TypeId ZmqMobilityModel::GetTypeId(void) {
                         MakeIntegerChecker<int>())
           .AddAttribute("ZmqEndpoint",
                         "The endpoint used to communicate with Phi",
-                        StringValue("inproc:///tmp/PhiEndpoint"),
+                        StringValue("ipc:///tmp/PhiEndpoint"),
                         MakeStringAccessor(&ZmqMobilityModel::m_zmqEndpoint),
                         MakeStringChecker());
   return tid;

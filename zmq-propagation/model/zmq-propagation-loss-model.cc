@@ -37,7 +37,7 @@ TypeId ExternalPropagationLossModel::GetTypeId(void) {
                         MakeIntegerChecker<int>())
           .AddAttribute(
               "ZmqEndpoint", "The endpoint used to communicate with Phi",
-              StringValue("inproc:///tmp/PhiEndpoint"),
+              StringValue("ipc:///tmp/PhiEndpoint"),
               MakeStringAccessor(&ExternalPropagationLossModel::m_zmqEndpoint),
               MakeStringChecker());
   return tid;
