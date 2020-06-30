@@ -22,6 +22,7 @@ def generate_proto(context, source):
 
 def configure(conf):
     conf.env.append_value("CXXFLAGS", "-I/home/rgrunbla/libs/include/")
+    conf.env.append_value("CXXFLAGS", "-std=c++14")
     
     # ZeroMQ
     if Options.options.with_zmq:
