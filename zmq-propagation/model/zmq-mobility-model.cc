@@ -52,6 +52,11 @@ ZmqMobilityModel::ZmqMobilityModel() { this->connected = false; }
 
 ZmqMobilityModel::~ZmqMobilityModel() {}
 
+void ZmqMobilityModel::DoDispose(void) {
+  this->zmq_sock->close();
+  MobilityModel::DoDispose();
+}
+
 inline Vector ZmqMobilityModel::DoGetVelocity(void) const {
   // TODO
   return Vector(0.0, 0.0, 0.0);
@@ -60,6 +65,7 @@ inline Vector ZmqMobilityModel::DoGetVelocity(void) const {
 void ZmqMobilityModel::setupAndConnect(zmq::context_t &context) {
   this->zmq_sock = std::make_unique<zmq::socket_t>(context, ZMQ_REQ);
   this->zmq_sock->connect(m_zmqEndpoint);
+  this->zmq_sock->setsockopt(ZMQ_LINGER, 0);
   this->connected = true;
 }
 
