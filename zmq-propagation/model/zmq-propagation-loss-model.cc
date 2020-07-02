@@ -46,13 +46,17 @@ TypeId ExternalPropagationLossModel::GetInstanceTypeId() const {
   return GetTypeId();
 }
 
-ExternalPropagationLossModel::ExternalPropagationLossModel(zmq::context_t & context)
+ExternalPropagationLossModel::ExternalPropagationLossModel(
+    zmq::context_t &context)
     : zmq_sock(context, ZMQ_REQ) {
   ObjectBase::ConstructSelf(AttributeConstructionList());
   this->zmq_sock.connect(m_zmqEndpoint);
+  this->zmq_sock.setsockopt(ZMQ_LINGER, 0);
 }
 
-ExternalPropagationLossModel::~ExternalPropagationLossModel() {}
+ExternalPropagationLossModel::~ExternalPropagationLossModel() {
+  this->zmq_sock.close();
+}
 
 double ExternalPropagationLossModel::DoCalcRxPower(double txPowerDbm,
                                                    Ptr<MobilityModel> a,
